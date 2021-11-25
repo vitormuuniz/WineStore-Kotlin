@@ -8,6 +8,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 class BaseExceptionHandler {
     @ExceptionHandler(BaseException::class)
     protected fun handleBaseException(ex: BaseException): ResponseEntity<String> {
-        return ResponseEntity.status(ex.httpStatus).body(ex.messageError);
+        return ResponseEntity.status(ex.httpStatus).body(ex.messageError)
     }
 }

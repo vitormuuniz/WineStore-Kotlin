@@ -19,7 +19,7 @@ class WineStoreController(
     fun registerRoom(
         @RequestBody @Valid request: WineStore,
     ): ResponseEntity<WineStore> {
-        val wineStore: WineStore = wineStoreService.createWineStore(request)
+        val wineStore: WineStore? = wineStoreService.createWineStore(request)
         return ResponseEntity.status(HttpStatus.CREATED).body(wineStore)
     }
 

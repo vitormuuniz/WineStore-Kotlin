@@ -7,7 +7,7 @@ import br.com.winestore.utils.WineStoreUtils
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 
-import java.util.Optional;
+import java.util.Optional
 
 @Service
 class WineStoreService(
@@ -15,19 +15,13 @@ class WineStoreService(
 ) {
 
     @Throws(BaseException::class)
-    fun createWineStore(request: WineStore): WineStore {
-        if (WineStoreUtils.atributtesAreNull(request)) throw BaseException(
-            "All of the fields must not be null, verify your data",
-            HttpStatus.BAD_REQUEST
-        )
-        if (request.faixaFim <= request.faixaInicio) throw BaseException(
-            "FAIXA_FIM must be greater than FAIXA_INICIO",
-            HttpStatus.BAD_REQUEST
-        )
-        if (!WineStoreUtils.canCreateOrUpdateWineStore(request, wineStoreRepository)) {
-            throw BaseException("There is a zip range conflit, verify your data", HttpStatus.BAD_REQUEST)
-        }
-        return wineStoreRepository.save(request)
+    fun createWineStore(request: WineStore): WineStore? {
+        WineStoreUtils.verifyAttributesNull(request)
+        var wineStore: WineStore? = null
+        if (WineStoreUtils.canCreateOrUpdateWineStore(request, wineStoreRepository, false))
+            wineStore = wineStoreRepository.save(request)
+
+        return wineStore
     }
 
     fun listAllWineStores(faixaInicio: Long?, faixaFim: Long?, codigoLoja: String?): List<WineStore> {
@@ -38,46 +32,31 @@ class WineStoreService(
 
     @Throws(BaseException::class)
     fun findWineStoreById(id: Long): WineStore {
-        val wineStoreOp: Optional<WineStore> = wineStoreRepository.findById(id)
-        if (!wineStoreOp.isPresent()) throw BaseException(
-            "There isn't a wine store with id = $id",
-            HttpStatus.NOT_FOUND
-        )
+        val wineStoreOp = WineStoreUtils.verifyIfExists(id, wineStoreRepository)
         return wineStoreOp.get()
     }
 
     @Throws(BaseException::class)
     fun updateWineStore(request: WineStore, id: Long): WineStore? {
-        if (request.faixaFim <= request.faixaInicio) throw BaseException(
-            "FAIXA_FIM MUST BE GREATER THAN FAIXA_INICIO",
-            HttpStatus.BAD_REQUEST
-        )
-        val wineStoreOp: Optional<WineStore> = wineStoreRepository.findById(id)
-        if (!wineStoreOp.isPresent()) throw BaseException(
-            "There isn't a wine store with id = $id",
-            HttpStatus.NOT_FOUND
-        )
-        if (!WineStoreUtils.canCreateOrUpdateWineStore(request, wineStoreRepository)) {
-            throw BaseException("There is a zip range conflit, verify your data", HttpStatus.BAD_REQUEST)
+        val wineStoreOp = WineStoreUtils.verifyIfExists(id, wineStoreRepository)
+        var wineStore: WineStore? = null
+        if (WineStoreUtils.canCreateOrUpdateWineStore(request, wineStoreRepository, true)) {
+            wineStore = wineStoreOp.get()
+            wineStoreRepository.save(
+                wineStore.copy(
+                    codigoLoja = request.codigoLoja ?: wineStore.codigoLoja,
+                    faixaInicio = request.faixaInicio ?: wineStore.faixaInicio,
+                    faixaFim = request.faixaFim ?: wineStore.faixaFim
+                )
+            )
         }
-        val wineStore: WineStore = wineStoreOp.get()
-        if (request.codigoLoja != null) {
-            wineStore.codigoLoja = request.codigoLoja
-        }
-        if (request.faixaInicio != null) {
-            wineStore.faixaInicio = request.faixaInicio
-        }
-        if (request.faixaFim != null) {
-            wineStore.faixaFim = request.faixaFim
-        }
-        wineStoreRepository.save(wineStore)
         return wineStore
     }
 
     @Throws(BaseException::class)
     fun deleteWineStore(id: Long) {
-        val room: Optional<WineStore> = wineStoreRepository.findById(id)
-        if (!room.isPresent) throw BaseException("Wine Store ID haven't found", HttpStatus.NOT_FOUND)
+        val wineStore: Optional<WineStore> = wineStoreRepository.findById(id)
+        if (wineStore.isEmpty) throw BaseException("Wine Store ID haven't found", HttpStatus.NOT_FOUND)
         wineStoreRepository.deleteById(id)
     }
 
