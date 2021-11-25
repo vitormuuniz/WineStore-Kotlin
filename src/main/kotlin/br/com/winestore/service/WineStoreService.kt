@@ -55,8 +55,7 @@ class WineStoreService(
 
     @Throws(BaseException::class)
     fun deleteWineStore(id: Long) {
-        val wineStore: Optional<WineStore> = wineStoreRepository.findById(id)
-        if (wineStore.isEmpty) throw BaseException("Wine Store ID haven't found", HttpStatus.NOT_FOUND)
+        WineStoreUtils.verifyIfExists(id, wineStoreRepository)
         wineStoreRepository.deleteById(id)
     }
 
