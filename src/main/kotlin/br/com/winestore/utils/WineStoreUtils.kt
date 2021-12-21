@@ -16,9 +16,9 @@ class WineStoreUtils {
                     "faixaFim must be greater than faixaInicio",
                     HttpStatus.BAD_REQUEST
                 )
-                val winStoreList =
+                val winStoreFilteredList =
                     wineStoreRepository.findWineStoresFiltered(wineStoreRequest.faixaInicio, wineStoreRequest.faixaFim)
-                if (winStoreList.isEmpty())
+                if (wineStoreRepository.count() > 0 && winStoreFilteredList.isEmpty())
                     throw BaseException("There is a zip range conflict, verify your data", HttpStatus.BAD_REQUEST)
             } else if (!isUpdate) throw BaseException(
                 "faixaFim and faixaInicio must be greater than zero and must be not null",
