@@ -37,7 +37,7 @@ class WineStoreUtils {
 
         fun verifyIfExists(id: Long, wineStoreRepository: WineStoreRepository): Optional<WineStore>{
             val wineStoreOp: Optional<WineStore> = wineStoreRepository.findById(id)
-            if (wineStoreOp.isEmpty) throw BaseException(
+            if (!wineStoreOp.isPresent) throw BaseException(
                 "There isn't a wine store with id = $id",
                 HttpStatus.NOT_FOUND
             )
