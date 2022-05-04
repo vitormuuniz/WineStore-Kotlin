@@ -3,11 +3,10 @@ package br.com.winestore.service
 import br.com.winestore.exception.BaseException
 import br.com.winestore.model.WineStore
 import br.com.winestore.repository.WineStoreRepository
-import br.com.winestore.utils.WineStoreUtils
-import org.springframework.http.HttpStatus
+import br.com.winestore.utils.WineStoreUtils.Companion.validateFields
+import br.com.winestore.utils.WineStoreUtils.Companion.validateFieldsRange
+import br.com.winestore.utils.WineStoreUtils.Companion.getIfExists
 import org.springframework.stereotype.Service
-
-import java.util.Optional
 
 @Service
 class WineStoreService(
@@ -16,47 +15,47 @@ class WineStoreService(
 
     @Throws(BaseException::class)
     fun createWineStore(request: WineStore): WineStore? {
-        WineStoreUtils.verifyAttributesNull(request)
-        var wineStore: WineStore? = null
-        if (WineStoreUtils.canCreateOrUpdateWineStore(request, wineStoreRepository, false))
-            wineStore = wineStoreRepository.save(request)
-
-        return wineStore
+        validateFields(request)
+        validateFieldsRange(request, wineStoreRepository)
+        return wineStoreRepository.save(request)
     }
 
     fun listAllWineStores(faixaInicio: Long?, faixaFim: Long?, codigoLoja: String?): List<WineStore> {
-        if (codigoLoja != null) return wineStoreRepository.findByCodigoLoja(codigoLoja)
-        if (faixaInicio != null) return wineStoreRepository.findByFaixaInicioGreaterThan(faixaInicio)
-        return if (faixaFim != null) wineStoreRepository.findByFaixaFimLessThan(faixaFim) else wineStoreRepository.findAll()
+        if (codigoLoja != null) {
+            return wineStoreRepository.findByCodigoLoja(codigoLoja)
+        }
+        if (faixaInicio != null && faixaFim != null) {
+            return wineStoreRepository.findBetweenFaixaInicioAndFaixaFim(faixaInicio, faixaFim)
+        }
+        if (faixaInicio != null) {
+            return wineStoreRepository.findByFaixaInicioGreaterThan(faixaInicio)
+        }
+        if (faixaFim != null)  {
+            return wineStoreRepository.findByFaixaFimLessThan(faixaFim)
+        }
+        return wineStoreRepository.findAll()
     }
 
     @Throws(BaseException::class)
     fun findWineStoreById(id: Long): WineStore {
-        val wineStoreOp = WineStoreUtils.verifyIfExists(id, wineStoreRepository)
-        return wineStoreOp.get()
+        return getIfExists(id, wineStoreRepository)
     }
 
     @Throws(BaseException::class)
     fun updateWineStore(request: WineStore, id: Long): WineStore? {
-        val wineStoreOp = WineStoreUtils.verifyIfExists(id, wineStoreRepository)
-        var wineStore: WineStore? = null
-        if (WineStoreUtils.canCreateOrUpdateWineStore(request, wineStoreRepository, true)) {
-            wineStore = wineStoreOp.get()
-            wineStoreRepository.save(
-                wineStore.copy(
-                    codigoLoja = request.codigoLoja ?: wineStore.codigoLoja,
-                    faixaInicio = request.faixaInicio ?: wineStore.faixaInicio,
-                    faixaFim = request.faixaFim ?: wineStore.faixaFim
-                )
+        val wineStore = getIfExists(id, wineStoreRepository)
+        return wineStoreRepository.save(
+            wineStore.copy(
+                codigoLoja = request.codigoLoja ?: wineStore.codigoLoja,
+                faixaInicio = request.faixaInicio ?: wineStore.faixaInicio,
+                faixaFim = request.faixaFim ?: wineStore.faixaFim
             )
-        }
-        return wineStore
+        )
     }
 
     @Throws(BaseException::class)
     fun deleteWineStore(id: Long) {
-        WineStoreUtils.verifyIfExists(id, wineStoreRepository)
-        wineStoreRepository.deleteById(id)
+        val wineStore = getIfExists(id, wineStoreRepository)
+        wineStoreRepository.deleteById(wineStore.id)
     }
-
 }

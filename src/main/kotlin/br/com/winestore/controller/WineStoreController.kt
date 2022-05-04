@@ -5,7 +5,14 @@ import br.com.winestore.model.WineStore
 import br.com.winestore.service.WineStoreService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
 import javax.transaction.Transactional
 import javax.validation.Valid
 
@@ -19,8 +26,7 @@ class WineStoreController(
     fun registerRoom(
         @RequestBody @Valid request: WineStore,
     ): ResponseEntity<WineStore> {
-        val wineStore: WineStore? = wineStoreService.createWineStore(request)
-        return ResponseEntity.status(HttpStatus.CREATED).body(wineStore)
+        return ResponseEntity.status(HttpStatus.CREATED).body(wineStoreService.createWineStore(request))
     }
 
     @GetMapping
@@ -30,15 +36,13 @@ class WineStoreController(
         @RequestParam(required = false) faixaFim: Long?,
         @RequestParam(required = false) codigoLoja: String?
     ): ResponseEntity<List<WineStore>> {
-        val wineStoreList = wineStoreService.listAllWineStores(faixaInicio, faixaFim, codigoLoja)
-        return ResponseEntity.ok(wineStoreList)
+        return ResponseEntity.ok(wineStoreService.listAllWineStores(faixaInicio, faixaFim, codigoLoja))
     }
 
     @GetMapping("/{id}")
     @Throws(BaseException::class)
     fun listOneWineStoreById(@PathVariable id: Long): ResponseEntity<WineStore?>? {
-        val wineStore = wineStoreService.findWineStoreById(id)
-        return ResponseEntity.ok(wineStore)
+        return ResponseEntity.ok(wineStoreService.findWineStoreById(id))
     }
 
     @PutMapping("/{id}")
@@ -47,8 +51,7 @@ class WineStoreController(
         @RequestBody form: @Valid WineStore,
         @PathVariable id: Long
     ): ResponseEntity<WineStore> {
-        val wineStore = wineStoreService.updateWineStore(form, id)
-        return ResponseEntity.ok(wineStore)
+        return ResponseEntity.ok(wineStoreService.updateWineStore(form, id))
     }
 
     @DeleteMapping("/{id}")
