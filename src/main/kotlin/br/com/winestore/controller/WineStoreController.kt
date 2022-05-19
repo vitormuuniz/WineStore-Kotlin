@@ -23,7 +23,7 @@ class WineStoreController(
 
     @PostMapping
     @Throws(BaseException::class)
-    fun registerRoom(
+    fun registerWineStore(
         @RequestBody @Valid request: WineStore,
     ): ResponseEntity<WineStore> {
         return ResponseEntity.status(HttpStatus.CREATED).body(wineStoreService.createWineStore(request))
@@ -31,7 +31,7 @@ class WineStoreController(
 
     @GetMapping
     @Throws(BaseException::class)
-    fun listWineRooms(
+    fun listWineStore(
         @RequestParam(required = false) faixaInicio: Long?,
         @RequestParam(required = false) faixaFim: Long?,
         @RequestParam(required = false) codigoLoja: String?
