@@ -56,6 +56,6 @@ class WineStoreService(
     @Throws(BaseException::class)
     fun deleteWineStore(id: Long) {
         val wineStore = getIfExists(id, wineStoreRepository)
-        wineStoreRepository.deleteById(wineStore.id)
+        wineStoreRepository.deleteById(wineStore.id!!)
     }
 }
