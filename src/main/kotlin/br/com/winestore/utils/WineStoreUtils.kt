@@ -33,7 +33,7 @@ class WineStoreUtils {
             if (to.faixaFim!! <= to.faixaInicio!!) {
                 throw BaseException("faixaFim must be greater than faixaInicio", HttpStatus.BAD_REQUEST)
             }
-            val wineStores: List<WineStore> = wineStoreRepository.findWineStoresFiltered(to.faixaInicio, to.faixaFim)
+            val wineStores: List<WineStore> = wineStoreRepository.findWineStoresFiltered(to.faixaInicio!!, to.faixaFim!!)
             if (wineStoreRepository.count() > 0 && wineStores.isNotEmpty()) {
                 throw BaseException("There is a zip range conflict, verify your data", HttpStatus.BAD_REQUEST)
             }
