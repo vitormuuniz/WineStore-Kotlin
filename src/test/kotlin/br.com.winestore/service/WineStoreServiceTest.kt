@@ -19,7 +19,6 @@ import org.springframework.http.HttpStatus
 import java.util.Collections
 import java.util.Optional
 
-
 @SpringBootTest
 class WineStoreServiceTest {
     @Autowired
